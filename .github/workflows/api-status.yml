@@ -21,7 +21,7 @@ jobs:
         id: check
         run: |
           API_URL="https://smal82.netsons.org/wp-json/mct/v1/classifica"
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$API_URL")
+          STATUS=$(curl -w "%{http_code}" "$API_URL")
           if [[ "$STATUS" -ge 200 && "$STATUS" -lt 300 ]]; then
             echo "::set-output name=api_status::online"
           else
