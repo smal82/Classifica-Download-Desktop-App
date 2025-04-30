@@ -1,42 +1,32 @@
-name: Monitor API Status
+name: API Status Monitor
 
 on:
   schedule:
-    - cron: '*/15 * * * *' # Esegue il workflow ogni 15 minuti
+    - cron: '*/15 * * * *'
+  workflow_dispatch:  # per avviarlo manualmente se ti serve
 
 jobs:
-  check_api_status:
+  check-api:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 'lts/*'
-
-      - name: Check API status
-        id: check
+      - name: Controlla lo stato dell'API
         run: |
-          API_URL="https://smal82.netsons.org/wp-json/mct/v1/classifica"
-          STATUS=$(curl -w "%{http_code}" "$API_URL")
-          if [[ "$STATUS" -ge 200 && "$STATUS" -lt 300 ]]; then
-            echo "::set-output name=api_status::online"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://smal82.netsons.org/wp-json/mct/v1/classifica)
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ API ONLINE"
+            echo "status=online" >> $GITHUB_OUTPUT
+            echo ":white_check_mark: Online" > status.md
           else
-            echo "::set-output name=api_status::offline"
+            echo "❌ API OFFLINE"
+            echo "status=offline" >> $GITHUB_OUTPUT
+            echo ":x: Offline" > status.md
           fi
 
-      - name: Update README badge
-        uses: mikeal/publish-to-github-action@master
-        env:
-          GITHUB_TOKEN: <span class="math-inline">\{\{ secrets\.GITHUB\_TOKEN \}\}
-with\:
-branch\: main
-files\: README\.md
-message\: "Update API status badge"
-if\: steps\.check\.outputs\.api\_status \!\= 'unknown'
-run\: \|
-STATUS\_TEXT\=</span>(echo "${{ steps.check.outputs.api_status }}" | sed 's/online/Online/g' | sed 's/offline/Offline/g')
-          BADGE_URL="https://img.shields.io/badge/API-$STATUS_TEXT-brightgreen?style=flat-square&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6AOAAQAAAABAAABDAAAAAAAAAYq6oAAAACXBIWXMAAA9tAAAPTQCeTn1AAAAAB3RJTUUH5wMhDg4WzKj9OgAAAEdJREFUSIntlU0OgjAQRb0hUEEQn8oJm4QTwQn8oImYgBN4ATwBnKBdwAn8oJkYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATwBnKBdwAn8oJmYgBN4ATw
+      - name: Commit del badge
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add status.md
+          git commit -m "Aggiornato stato API"
+          git push
