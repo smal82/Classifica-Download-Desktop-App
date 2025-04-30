@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: read # Permette al workflow di leggere il contenuto del repository (necessario per checkout)
+  packages: write # Permette al workflow di scrivere pacchetti (potrebbe essere necessario se pubblichi)
+  actions: read # Permette al workflow di leggere i log e lo stato delle azioni
+  # Altre autorizzazioni specifiche di cui il tuo workflow potrebbe aver bisogno
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -29,8 +35,8 @@ jobs:
       - name: Build and Package
         uses: electron-userland/electron-builder@v4
         with:
-          app-dir: . # Root of the repository
-          publish: never # Change to 'always' or your preferred method for publishing releases
+          app-dir: .
+          publish: never
           win:
             target: "nsis"
           mac:
@@ -38,4 +44,4 @@ jobs:
           linux:
             target: "deb"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required for some packagers
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
