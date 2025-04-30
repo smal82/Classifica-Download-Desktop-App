@@ -1,0 +1,15 @@
+{
+  "name": "classifica-app",
+  "version": "1.0.0",
+  "description": "Visualizza la classifica download",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "smal",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^36.0.0",
+    "node-fetch": "^3.3.2"
+  }
+}
