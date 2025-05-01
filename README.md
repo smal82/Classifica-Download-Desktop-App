@@ -1,4 +1,7 @@
-![API Status](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/smal82/Classifica-Download-Desktop-App/main/api-status.json)
+![API Status](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/smal82/Classifica-Download-Desktop-App/main/api-status.json) ![Build Status](https://github.com/smal82/Classifica-Download-Desktop-App/actions/workflows/api-status.yml/badge.svg) ![Last Commit](https://img.shields.io/github/last-commit/smal82/Classifica-Download-Desktop-App) ![Repo Size](https://img.shields.io/github/repo-size/smal82/Classifica-Download-Desktop-App) ![Electron](https://img.shields.io/badge/devDependency-electron@36.0.0-blueviolet?logo=electron) ![Language](https://img.shields.io/badge/language-JavaScript-F7DF1E?logo=javascript&logoColor=black) ![Node](https://img.shields.io/badge/runtime-Node.js-339933?logo=node.js&logoColor=white)
+![UI](https://img.shields.io/badge/UI-HTML/CSS-orange) ![Windows Support](https://img.shields.io/badge/Windows-✔️-blue?logo=windows)
+![macOS Support](https://img.shields.io/badge/macOS-✔️-lightgrey?logo=apple)
+![Linux Support](https://img.shields.io/badge/Linux-✔️-yellow?logo=linux)
 
 # ✨ Classifica Download Desktop App 🚀
 
