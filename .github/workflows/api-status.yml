@@ -36,5 +36,3 @@ jobs:
       - name: Stampa URL del badge
         run: |
           echo "Badge URL: ${{ steps.badge.outputs.badge_url }}"
-
-
