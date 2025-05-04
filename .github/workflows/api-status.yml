@@ -49,7 +49,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add api-status.json
-          # Aggiungiamo l'opzione --allow-empty per creare un commit anche senza modifiche
           git commit -m "Aggiornato stato API" --allow-empty
           git push
           echo "Commit e push completati."
