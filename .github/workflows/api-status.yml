@@ -5,6 +5,9 @@ on:
     - cron: '*/15 * * * *'
   workflow_dispatch:
 
+permissions: # Correzione: Dichiarazione corretta delle autorizzazioni
+  contents: read # Modificato da 'write' a 'read' per maggiore sicurezza.  Non serve 'write' per leggere lo status e generare un badge.
+
 jobs:
   check-api:
     runs-on: ubuntu-latest
@@ -15,7 +18,7 @@ jobs:
       - name: Controllo stato dell'API
         id: check
         run: |
-          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://smal82.netsons.org/wp-json/mct/v1/classifica)
+          STATUS_CODE=$(curl -s -f -o /dev/null -w "%{http_code}" https://smal82.netsons.org/wp-json/mct/v1/classifica)
           echo "STATUS_CODE=$STATUS_CODE"
           if [ "$STATUS_CODE" -eq "200" ]; then
             echo "::set-output name=badge_color::green"
@@ -25,7 +28,6 @@ jobs:
             echo "::set-output name=badge_color::red"
             echo "::set-output name=badge_message::Offline"
           fi
-
       - name: Genera URL del badge
         id: badge
         run: |
