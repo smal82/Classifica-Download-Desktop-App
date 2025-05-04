@@ -5,6 +5,9 @@ on:
     - cron: '*/15 * * * *'
   workflow_dispatch:
 
+permissions:
+  contents: read # Corretto: Autorizzazioni impostate su read
+
 jobs:
   check-api:
     runs-on: ubuntu-latest
