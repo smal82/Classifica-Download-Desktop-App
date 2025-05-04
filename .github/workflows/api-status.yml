@@ -31,12 +31,8 @@ jobs:
             echo "API ONLINE"
             echo "::set-output name=badge_color::green"
             echo "::set-output name=badge_message::Online"
-          elif [ "$NC_EXIT_CODE" -eq "1" ]; then # Aggiunta la condizione per errore specifico di nc
-            echo "API OFFLINE (Errore: Porta chiusa o rifiutata)"
-            echo "::set-output name=badge_color::red"
-            echo "::set-output name=badge_message::Offline"
           else
-            echo "API OFFLINE (Errore: $NC_EXIT_CODE)" #stampa il codice di errore
+            echo "API OFFLINE (Errore: Porta chiusa o irraggiungibile)"
             echo "::set-output name=badge_color::red"
             echo "::set-output name=badge_message::Offline"
           fi
@@ -51,3 +47,15 @@ jobs:
       - name: Stampa URL del badge
         run: |
           echo "Badge URL: ${{ steps.badge.outputs.badge_url }}"
+
+      - name: Aggiorna README
+        uses: actions/checkout@v3
+      - name: Update README
+        run: |
+          BADGE_URL="${{ steps.badge.outputs.badge_url }}"
+          echo "Updating README with Badge URL: $BADGE_URL"
+          sed -i "s|!\\[API Status\\](.*)|!\\[API Status\\]($BADGE_URL)|g" README.md
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update API Status Badge"
+          git push
