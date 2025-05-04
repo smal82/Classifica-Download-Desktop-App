@@ -9,26 +9,26 @@ jobs:
   check-api:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout del repository
+        uses: actions/checkout@v3
+
       - name: Controllo stato dell'API
         id: check
         run: |
           STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://smal82.netsons.org/wp-json/mct/v1/classifica)
           echo "STATUS_CODE=$STATUS_CODE"
           if [ "$STATUS_CODE" -eq "200" ]; then
-            echo "::set-output name=api_status::online"
-            echo "::set-output name=badge_color::brightgreen"
-            echo "::set-output name=badge_message::online"
+            echo "::set-output name=badge_color::green"
+            echo "::set-output name=badge_message::Online"
           else
             echo "API OFFLINE"
-            echo "::set-output name=api_status::offline"
             echo "::set-output name=badge_color::red"
-            echo "::set-output name=badge_message::offline"
+            echo "::set-output name=badge_message::Offline"
           fi
 
       - name: Genera URL del badge
         id: badge
         run: |
-          API_STATUS="${{ steps.check.outputs.api_status }}"
           BADGE_COLOR="${{ steps.check.outputs.badge_color }}"
           BADGE_MESSAGE="${{ steps.check.outputs.badge_message }}"
           echo "::set-output name=badge_url::https://img.shields.io/badge/API-$BADGE_MESSAGE-$BADGE_COLOR"
