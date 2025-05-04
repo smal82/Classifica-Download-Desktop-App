@@ -3,7 +3,7 @@ name: Controllo API Status
 on:
   schedule:
     - cron: '*/15 * * * *'  # ogni 15 minuti
-  workflow_dispatch:        # trigger manuale
+  workflow_dispatch:      # trigger manuale
   
 permissions:
   contents: write  # NECESSARIO per fare commit e push
@@ -11,18 +11,21 @@ permissions:
 jobs:
   check-api:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout del repository
         uses: actions/checkout@v3
-
+        
       - name: Controllo stato dell'API
         id: check
+        continue-on-error: true # Importante: Continua anche se il comando fallisce
         run: |
           STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://smal82.netsons.org/wp-json/mct/v1/classifica)
-
+          echo "STATUS_CODE=$STATUS_CODE" # Utile per il debug
+          
           if [ "$STATUS_CODE" = "200" ]; then
             echo "API ONLINE"
+            echo "::set-output name=api_status::online"
             echo '{
               "schemaVersion": 1,
               "label": "API",
@@ -31,19 +34,22 @@ jobs:
             }' > api-status.json
           else
             echo "API OFFLINE"
+            echo "::set-output name=api_status::offline"
             echo '{
               "schemaVersion": 1,
               "label": "API",
               "message": "offline",
               "color": "red"
             }' > api-status.json
+            exit 1 # Forza un errore per testare continue-on-error
           fi
-
+          
       - name: Commit se ci sono modifiche
+        if: always() # Esegui questo step sempre, indipendentemente dal risultato del precedente
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
+          
           if git diff --quiet api-status.json; then
             echo "Nessuna modifica, niente commit."
           else
@@ -51,3 +57,8 @@ jobs:
             git commit -m "Aggiornato stato API"
             git push
           fi
+      - name: Gestione errore (Opzionale, per ulteriore controllo)
+        if: failure() && steps.check.outputs.api_status == 'offline'
+        run: |
+          echo "L'API è offline.  Esegui azioni aggiuntive qui (es: invia notifica)."
+          # Puoi aggiungere qui comandi per inviare notifiche via Slack, email, etc.
