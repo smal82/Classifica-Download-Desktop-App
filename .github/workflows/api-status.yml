@@ -5,8 +5,8 @@ on:
     - cron: '*/15 * * * *'
   workflow_dispatch:
 
-permissions:
-  contents: read # Corretto: Autorizzazioni impostate su read
+permissions: # Questa sezione definisce le autorizzazioni
+  contents: read # Modificato da write a read
 
 jobs:
   check-api:
@@ -18,9 +18,12 @@ jobs:
       - name: Controllo stato dell'API
         id: check
         run: |
-          STATUS_CODE=$(curl -s -f -o /dev/null -w "%{http_code}" https://smal82.netsons.org/wp-json/mct/v1/classifica)
-          echo "STATUS_CODE=$STATUS_CODE"
-          if [ "$STATUS_CODE" -eq "200" ]; then
+          HOST="smal82.netsons.org"
+          PORT="443" # Assumo che la tua API sia su HTTPS, quindi porta 443. Se è HTTP, usa 80.
+          TIMEOUT=5
+
+          nc -z -w $TIMEOUT $HOST $PORT
+          if [ "$?" -eq "0" ]; then
             echo "API ONLINE"
             echo "::set-output name=badge_color::green"
             echo "::set-output name=badge_message::Online"
