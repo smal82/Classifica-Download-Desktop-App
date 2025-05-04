@@ -18,11 +18,12 @@ jobs:
         
       - name: Controllo stato dell'API
         id: check
+        continue-on-error: true # Aggiunto per gestire gli errori di curl
         run: |
           STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://smal82.netsons.org/wp-json/mct/v1/classifica)
           echo "STATUS_CODE=$STATUS_CODE" # Utile per il debug
           
-          if [ "$STATUS_CODE" = "200" ]; then
+          if [ "$STATUS_CODE" -eq "200" ]; then # Modificato il confronto per essere più robusto
             echo "API ONLINE"
             echo "::set-output name=api_status::online"
             echo '{
@@ -40,7 +41,6 @@ jobs:
               "message": "offline",
               "color": "red"
             }' > api-status.json
-            # Non usiamo più exit 1 qui.  Lasciamo che il workflow continui.
           fi
           
       - name: Commit se ci sono modifiche
@@ -56,4 +56,3 @@ jobs:
             git commit -m "Aggiornato stato API"
             git push
           fi
-
