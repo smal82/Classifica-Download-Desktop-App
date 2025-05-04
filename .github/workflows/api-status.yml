@@ -5,8 +5,8 @@ on:
     - cron: '*/15 * * * *'
   workflow_dispatch:
 
-permissions: # Questa sezione definisce le autorizzazioni
-  contents: read # Modificato da write a read
+permissions:
+  contents: read # Imposta le autorizzazioni su sola lettura
 
 jobs:
   check-api:
@@ -19,16 +19,24 @@ jobs:
         id: check
         run: |
           HOST="smal82.netsons.org"
-          PORT="443" # Assumo che la tua API sia su HTTPS, quindi porta 443. Se è HTTP, usa 80.
+          PORT="443"
           TIMEOUT=5
 
+          # Esegui nc e cattura il codice di uscita
           nc -z -w $TIMEOUT $HOST $PORT
-          if [ "$?" -eq "0" ]; then
+          NC_EXIT_CODE="$?"
+
+          # Verifica il codice di uscita di nc
+          if [ "$NC_EXIT_CODE" -eq "0" ]; then
             echo "API ONLINE"
             echo "::set-output name=badge_color::green"
             echo "::set-output name=badge_message::Online"
+          elif [ "$NC_EXIT_CODE" -eq "1" ]; then # Aggiunta la condizione per errore specifico di nc
+            echo "API OFFLINE (Errore: Porta chiusa o rifiutata)"
+            echo "::set-output name=badge_color::red"
+            echo "::set-output name=badge_message::Offline"
           else
-            echo "API OFFLINE"
+            echo "API OFFLINE (Errore: $NC_EXIT_CODE)" #stampa il codice di errore
             echo "::set-output name=badge_color::red"
             echo "::set-output name=badge_message::Offline"
           fi
